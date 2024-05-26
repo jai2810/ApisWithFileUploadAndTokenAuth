@@ -1,11 +1,11 @@
 package com.example.postgres.postgresapi;
 
-import com.example.postgres.postgresapi.entity.User;
 import com.example.postgres.postgresapi.filters.AuthFilter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
+
 
 @SpringBootApplication
 public class PostgresapiApplication {
@@ -22,5 +22,4 @@ public class PostgresapiApplication {
 		registrationBean.addUrlPatterns("/api/image/*");
 		return registrationBean;
 	}
-
 }

@@ -10,8 +10,9 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.PreparedStatement;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Repository
 public class UserRepositoryImpl implements UserRepository {
@@ -24,6 +25,12 @@ public class UserRepositoryImpl implements UserRepository {
             "FROM USERS WHERE USER_ID = ?";
     private static final String SQL_FIND_BY_EMAIL = "SELECT USER_ID, USER_NAME, EMAIL, PASSWORD, CREATED_AT, UPDATED_AT " +
             "FROM USERS WHERE EMAIL = ?";
+    private static final String SQL_USER_UPDATE = "UPDATE USERS SET USER_NAME = ?, EMAIL = ?, PASSWORD = ?, CREATED_AT = ?, UPDATED_AT = ? " +
+            "WHERE USER_ID = ?";
+
+    private static final String SQL_USER_DELETE = "DELETE FROM USERS WHERE USER_ID = ?";
+
+    private static final String SQL_FIND_ALL_USERS = "SELECT * FROM USERS";
 
     @Autowired
     JdbcTemplate jdbcTemplate;
@@ -72,7 +79,54 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User findById(Integer id) throws WebApplicationException {
-        return jdbcTemplate.queryForObject(SQL_FIND_BY_ID, new Object[]{id}, userRowMapper);
+        try {
+            return jdbcTemplate.queryForObject(SQL_FIND_BY_ID, new Object[]{id}, userRowMapper);
+        } catch (Exception e) {
+            throw new WebApplicationException("User not found.");
+        }
+    }
+
+    @Override
+    public void updateUser(Integer userId, String username, String email, String password) {
+        User user = findById(userId);
+        try {
+            jdbcTemplate.update(SQL_USER_UPDATE, username, email, password, user.getCreatedAt(), System.currentTimeMillis(), userId);
+        } catch (Exception e) {
+            throw new WebApplicationException("Invalid request.");
+        }
+    }
+
+    @Override
+    public void deleteUser(Integer userId) {
+        try {
+            jdbcTemplate.update(SQL_USER_DELETE, userId);
+        } catch (Exception e) {
+            throw new WebApplicationException("Invalid request.");
+        }
+    }
+
+    @Override
+    public List<User> findAllUsers() throws SQLException {
+        Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/usermanagementdb",
+                "usermanager", "password");
+        List<User> userList = new ArrayList<>();
+        PreparedStatement ps = con.prepareStatement(SQL_FIND_ALL_USERS);
+        ResultSet rs = ps.executeQuery();
+        if (rs != null) {
+            while (rs.next()) {
+                User user = new User();
+                user.setUserid(rs.getInt("USER_ID"));
+                user.setUsername(rs.getString("USER_NAME"));
+                user.setPassword(rs.getString("PASSWORD"));
+                user.setEmail(rs.getString("EMAIL"));
+                user.setCreatedAt(rs.getLong("CREATED_AT"));
+                user.setUpdatedAt(rs.getLong("UPDATED_AT"));
+                userList.add(user);
+            }
+            rs.close();
+        }
+        ps.close();
+        return userList;
     }
 
     private RowMapper<User> userRowMapper = ((rs, rowNum) -> new User(rs.getInt("USER_ID"),

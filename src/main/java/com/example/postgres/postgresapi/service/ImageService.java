@@ -10,4 +10,8 @@ public interface ImageService {
     Integer uploadImage(Integer userId, MultipartFile file) throws IOException;
 
     byte[] downloadImage(String filename) throws SQLException;
+
+    void updateImage(Integer userId, MultipartFile file) throws IOException;
+
+    public byte[] downloadImageByUserId(Integer userId) throws SQLException;
 }

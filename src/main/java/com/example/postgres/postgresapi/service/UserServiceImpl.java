@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
 import java.util.regex.Pattern;
 
 @Service
@@ -48,5 +50,37 @@ public class UserServiceImpl implements UserService {
             imageService.uploadImage(userId, file);
         }
         return userRepository.findById(userId);
+    }
+
+    @Override
+    public User getUserById(Integer userId) {
+        return userRepository.findById(userId);
+    }
+
+    @Override
+    public void updateUser(Integer userId, String username, String email, String password) {
+        User user = getUserById(userId);
+        if (user == null) {
+            throw new WebApplicationException("User not found");
+        }
+        if (username == null) username = user.getUsername();
+        if (email == null) email = user.getEmail();
+        if (password == null) password = user.getPassword();
+
+        userRepository.updateUser(userId, username, email, password);
+    }
+
+    @Override
+    public void deleteUser(Integer userId) {
+        User user = getUserById(userId);
+        if (user == null) {
+            throw new WebApplicationException("User not found");
+        }
+        userRepository.deleteUser(userId);
+    }
+
+    @Override
+    public List<User> getAllUsers() throws SQLException {
+        return userRepository.findAllUsers();
     }
 }
