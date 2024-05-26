@@ -35,7 +35,7 @@ public class ImageResource {
                 .body(imageData);
     }
 
-    @GetMapping("/user/{userId}")
+    @GetMapping("/{userId}")
     public ResponseEntity<?> downloadImageByUserId(@PathVariable Integer userId) throws SQLException {
         byte[] imageData = imageService.downloadImageByUserId(userId);
         return ResponseEntity.status(HttpStatus.OK)
