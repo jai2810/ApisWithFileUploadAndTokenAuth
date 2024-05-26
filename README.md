@@ -1,4 +1,4 @@
-Pre-requisite: Postgres should be installed in the system.
+Pre-requisite: Postgres should be installed in the system. And then run the sql script usermanagement_db.sql to create the database and the tables.
 
 This project contains api endpoints for user management with an option to upload image for each user profile.
 
